@@ -126,6 +126,7 @@ node -e "import('./lib/index.js').then(m=>{m.applyConfig({});console.log(m.runti
 | `port-conflict` | 端口被其他程序占用，插件不会杀它。换端口或关掉占用者。 |
 | `not-installed` | 没找到 SnowLuma 或语音包。装好后会自动发现；装在非常规目录请在配置里写 `snowLumaDir` / `voiceRoot`。 |
 | `voxd-missing` / `gsv-missing` | 语音包缺 `.venv`（voxd）或 `.venv-gsv`（GPT-SoVITS），对应引擎起不来；补齐环境或忽略。 |
+| `gsv-config-missing` | 语音包里 `logs/gsv/tts_infer.yaml` 和 vendor 自带的 `tts_infer.yaml` 都没有，先按语音包说明跑一次初始化。 |
 | `kept-auto` / `kept-unknown` | surfcore 开着「随 DSH 启动 QQ」，峰时不抢停桥接。要停请在 surfcore 设置里关掉该开关。 |
 | `gsv-timeout` | GPT-SoVITS 45 秒内没监听 9880。检查 `voiceRoot`、`.venv-gsv` 和 `logs/gsv/tts_infer.yaml`。 |
 | `start-failed` / `gsv-start-failed` | 启动命令执行失败。检查路径、Python 环境和日志里的报错。 |
