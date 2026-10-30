@@ -1,0 +1,51 @@
+{
+  "name": "dsh-peak-valley",
+  "version": "0.2.1",
+  "description": "DSH 峰谷调度：北京时间工作日 9-12 / 14-18 峰时自动停止 SnowLuma 与语音服务，谷时自动拉起。",
+  "type": "module",
+  "main": "./lib/index.js",
+  "icon": "assets/icon.svg",
+  "license": "MIT",
+  "author": "LFELKEEA",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LFELKEEA/dsh-peak-valley.git"
+  },
+  "homepage": "https://github.com/LFELKEEA/dsh-peak-valley#readme",
+  "bugs": {
+    "url": "https://github.com/LFELKEEA/dsh-peak-valley/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "harness",
+    "snowluma",
+    "scheduler",
+    "peak-valley"
+  ],
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "dsh": ">=0.2.0-rc.1 <0.3.0"
+  },
+  "scripts": {
+    "test": "node --test test/logic.test.mjs"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "hide-windows.ps1",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml"
+      ]
+    }
+  }
+}
