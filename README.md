@@ -70,37 +70,43 @@ dsh plugin --profile <你的 profile> add github:LFELKEEA/dsh-peak-valley
 
 ## 配置
 
-默认路径是插件作者的目录结构。**其他人的 SnowLuma / 语音装在哪里，需要改成自己的路径。**
+**通常不用配置。** 插件会自动找 SnowLuma 和语音包，装在哪里都行，顺序是：
 
-在 profile 的 `cordis.patch.yml` 中加一条覆盖项（`<profile>` 通常是 `desktop` 或 `web`）：
+1. 插件配置（profile 的 `cordis.patch.yml`）> 环境变量 `PEAK_VALLEY_*`；
+2. surfcore 的配置：`~/.dsh/surfcore/config.json` 与 surfcore 仓库根的 `config.json`（`snowluma.homeDir` / `launcherPath`、`snowluma.httpUrl` 端口、`socialV2.voice.tts.baseUrl` 端口）；
+3. 运行中的 `bridge.js` 命令行、`~/.dsh/plugins/surfcore` 软链 → 推断 surfcore 仓库根，再扫 `state/voice-packs/voice-local/*`；
+4. 常见安装目录：`%LOCALAPPDATA%\SnowLuma`、`%ProgramFiles%\SnowLuma`、`%USERPROFILE%\SnowLuma`、桌面、下载、各盘根目录的 `SnowLuma`。
+
+只有装在非常规位置、或同时装了好几份需要指定时，才要手动配。在 profile 的 `cordis.patch.yml` 里加一条覆盖项（`<profile>` 通常是 `desktop` 或 `web`）：
 
 ```yaml
 - id: dsh-peak-valley
   name: dsh-peak-valley
   config:
-    snowLumaNode: D:/SnowLuma/node.exe
-    snowLumaMain: D:/SnowLuma/index.mjs
-    snowLumaDir: D:/SnowLuma
-    voiceRoot: D:/Deepseek/工作区/surfcore/state/voice-packs/voice-local/surfvoicelocal-main
+    snowLumaDir: E:/Bots/SnowLuma
+    voiceRoot: E:/Bots/voice-pack/surfvoicelocal-main
 ```
 
-| 字段 | 默认值 | 含义 |
+| 字段 | 默认 | 含义 |
 | --- | --- | --- |
-| `snowLumaNode` | `D:/SnowLuma/node.exe` | SnowLuma 使用的 node.exe |
-| `snowLumaMain` | `D:/SnowLuma/index.mjs` | SnowLuma 入口文件 |
-| `snowLumaDir` | `D:/SnowLuma` | SnowLuma 工作目录 |
-| `voiceRoot` | surfcore 的 voice-local 目录 | 语音包根目录，需包含 `.venv`、`.venv-gsv`、`config.toml`、`vendor/GPT-SoVITS` |
+| `snowLumaDir` | 自动发现 | SnowLuma 目录（含 `index.mjs` 与 `node.exe`） |
+| `snowLumaNode` | `<snowLumaDir>/node.exe` | SnowLuma 使用的 node.exe |
+| `snowLumaMain` | `<snowLumaDir>/index.mjs` | SnowLuma 入口文件 |
+| `voiceRoot` | 自动发现 | 语音包根目录（含 `config.toml`、`.venv`、`.venv-gsv`、`vendor/GPT-SoVITS`） |
+| `snowLumaPort` | surfcore 的 `snowluma.httpUrl`，否则 3000 | SnowLuma OneBot 端口（3001 也一起认） |
+| `bridgePort` | 3100 | surfcore 控制台端口 |
+| `voxdPort` | surfcore 的 `tts.baseUrl`，否则 8765 | voxd TTS 端口 |
+| `gsvPort` | `voiceRoot/config.toml` 的 `gsv_url`，否则 9880 | GPT-SoVITS 端口 |
 
-也可以用环境变量覆盖（优先级低于配置文件，高于默认值）：
+环境变量覆盖（优先级低于插件配置）：`PEAK_VALLEY_SNOWLUMA_DIR`、`PEAK_VALLEY_SNOWLUMA_NODE`、`PEAK_VALLEY_SNOWLUMA_MAIN`、`PEAK_VALLEY_VOICE_ROOT`、`PEAK_VALLEY_SURFCORE_ROOT`、`PEAK_VALLEY_LOG`（日志路径）。
 
-```text
-PEAK_VALLEY_SNOWLUMA_NODE
-PEAK_VALLEY_SNOWLUMA_MAIN
-PEAK_VALLEY_SNOWLUMA_DIR
-PEAK_VALLEY_VOICE_ROOT
+**只装了一半也能用**：只有 SnowLuma 没语音包 → 只调度 SnowLuma；只有语音包没 SnowLuma → 只调度语音；两个都没装 → 只做空转巡检（日志写 `not-installed`），不报错。装好后不用重启：插件每 5 分钟重扫一次目录，发现到就开始调度。
+
+想看插件当前认到了什么，在插件目录跑：
+
+```sh
+node -e "import('./lib/index.js').then(m=>{m.applyConfig({});console.log(m.runtimeInfo())})"
 ```
-
-没有语音服务、或没有 surfcore 的用户可以保持默认：插件找不到匹配进程时会报 `already-off` / `already-on`，不会报错，也不会影响 SnowLuma 的调度。
 
 修改配置后重启 DSH。
 
@@ -110,7 +116,7 @@ PEAK_VALLEY_VOICE_ROOT
 - 峰谷边界按 09:00 / 12:00 / 14:00 / 18:00 对齐，边界后 2 秒触发，不依赖心跳的准点性。
 - 同一服务 5 分钟内不重复拉起，避免启动失败时反复刷进程。
 - 语音启动顺序：先 GPT-SoVITS（9880），最长等 45 秒，再起 voxd（8765）。
-- 日志写在插件目录的 `peak-valley.log`（北京时间）；只在状态变化或每小时心跳时写。超过 2 MB 时原地保留最近 512 KB。
+- 日志写在插件目录的 `peak-valley.log`；插件目录不可写时（装在 `node_modules` / Program Files）自动退到 `<DSH_HOME>/dsh-peak-valley/peak-valley.log`，也可用 `PEAK_VALLEY_LOG` 指定。只在状态变化或每小时心跳时写，超过 2 MB 时原地保留最近 512 KB。
 - 插件被重复加载时会跳过第二次注册，避免重复定时器和重复启动服务。
 
 ## 排错
@@ -118,6 +124,8 @@ PEAK_VALLEY_VOICE_ROOT
 | 日志 | 含义 / 处理 |
 | --- | --- |
 | `port-conflict` | 端口被其他程序占用，插件不会杀它。换端口或关掉占用者。 |
+| `not-installed` | 没找到 SnowLuma 或语音包。装好后会自动发现；装在非常规目录请在配置里写 `snowLumaDir` / `voiceRoot`。 |
+| `voxd-missing` / `gsv-missing` | 语音包缺 `.venv`（voxd）或 `.venv-gsv`（GPT-SoVITS），对应引擎起不来；补齐环境或忽略。 |
 | `kept-auto` / `kept-unknown` | surfcore 开着「随 DSH 启动 QQ」，峰时不抢停桥接。要停请在 surfcore 设置里关掉该开关。 |
 | `gsv-timeout` | GPT-SoVITS 45 秒内没监听 9880。检查 `voiceRoot`、`.venv-gsv` 和 `logs/gsv/tts_infer.yaml`。 |
 | `start-failed` / `gsv-start-failed` | 启动命令执行失败。检查路径、Python 环境和日志里的报错。 |
@@ -127,7 +135,7 @@ PEAK_VALLEY_VOICE_ROOT
 ## 开发
 
 ```sh
-npm test        # 峰谷判定 / 边界 / 进程身份 / surfcore 开关的单元测试
+npm test        # 峰谷判定 / 边界 / 进程身份 / surfcore 开关 / 路径自动发现的单元测试
 ```
 
 代码在 `lib/index.js`，只使用 Node 内置模块和 Windows PowerShell，没有运行时依赖。

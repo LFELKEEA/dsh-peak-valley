@@ -5,6 +5,13 @@
 # 默认关键字：SnowLuma / voice-packs（voxd 与 GPT-SoVITS 的控制台标题是完整路径，含此目录名）
 param([string[]]$Keywords = @('SnowLuma', 'voice-packs', 'voxd', 'GPT-SoVITS', 'api_v2.py'))
 
+# 允许 `-Keywords a,b,c` 这种逗号串（插件按发现到的安装目录名传参，可能含中文路径）
+$Keywords = @($Keywords |
+  ForEach-Object { ([string]$_).Split(',') } |
+  ForEach-Object { $_.Trim() } |
+  Where-Object { $_ })
+if (-not $Keywords.Count) { $Keywords = @('SnowLuma', 'voice-packs', 'voxd', 'GPT-SoVITS', 'api_v2.py') }
+
 Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;

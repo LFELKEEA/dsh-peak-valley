@@ -1,7 +1,7 @@
 {
   "name": "dsh-peak-valley",
-  "version": "0.2.4",
-  "description": "DSH 峰谷调度：北京时间工作日 9-12 / 14-18 峰时自动停止 SnowLuma 与语音服务，谷时自动拉起。",
+  "version": "0.3.0",
+  "description": "DSH 峰谷调度：北京时间工作日 9-12 / 14-18 峰时自动停止 SnowLuma 与语音服务，谷时自动拉起；路径自动发现，装在哪里都不用改配置。",
   "type": "module",
   "main": "./lib/index.js",
   "icon": "assets/icon.svg",
@@ -31,7 +31,7 @@
     "dsh": ">=0.2.0-rc.1 <0.3.0 || >=0.2.1-rc.1 <0.3.0"
   },
   "scripts": {
-    "test": "node --test test/logic.test.mjs"
+    "test": "node --test \"test/*.test.mjs\""
   },
   "files": [
     "lib",
