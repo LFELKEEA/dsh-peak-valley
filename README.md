@@ -52,6 +52,16 @@ https://github.com/LFELKEEA/dsh-peak-valley/releases/latest/download/dsh-peak-va
 
 安装后启用 `dsh-peak-valley`，重启 DSH 生效。
 
+### 在「发现」页添加索引源
+
+DSH 0.2.1 起支持自定义插件市场索引。打开 **插件 → 发现 → 索引源**，添加：
+
+```text
+https://raw.githubusercontent.com/LFELKEEA/dsh-peak-valley/main/market/index.json
+```
+
+之后就能在发现页直接看到并安装本插件。
+
 ### 命令行
 
 ```sh
