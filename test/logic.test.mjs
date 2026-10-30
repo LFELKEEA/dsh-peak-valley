@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  isBridgeProc, isPeakAt, isSnowLumaProc, isVoiceProc, nextTransitionAt, readSurfcoreStartQQ,
+  applyConfig, isBridgeProc, isPeakAt, isSnowLumaProc, isVoiceProc, nextTransitionAt, readSurfcoreStartQQ,
 } from '../lib/index.js';
 
 const bj = (text) => Date.parse(`${text}+08:00`);
@@ -51,6 +51,22 @@ test('进程身份：只认 SnowLuma / voice-packs / surfcore bridge.js', () => 
   }), true);
   assert.equal(isBridgeProc({ Name: 'node.exe', CommandLine: 'node C:\\app\\bridge.js' }), false);
   assert.equal(isBridgeProc({ Name: 'node.exe', CommandLine: 'node surfcore\\other.js' }), false);
+});
+
+test('自定义 voiceRoot 后仍能识别语音进程', () => {
+  applyConfig({ voiceRoot: 'D:/MyVoice/pack-local' });
+  try {
+    assert.equal(isVoiceProc({
+      Name: 'python.exe',
+      CommandLine: 'python.exe -m voxd --config D:\\MyVoice\\pack-local\\config.toml',
+    }), true);
+    assert.equal(isVoiceProc({
+      Name: 'python.exe',
+      CommandLine: 'python.exe -m http.server 8765',
+    }), false);
+  } finally {
+    applyConfig({});
+  }
 });
 
 test('surfcore 自动启动 QQ 开关：新字段 > 旧字段 > enabled 列表 > 默认', () => {
