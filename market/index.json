@@ -46,6 +46,18 @@
       },
       "versions": [
         {
+          "version": "0.3.2",
+          "publishTimestamp": 1793432091,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/LFELKEEA/dsh-peak-valley",
+            "commit": "b06c9660b733bcd8ad9a52c9ddf9a47f0a1682d3"
+          },
+          "engines": {
+            "dsh": ">=0.2.0-rc.1 <0.3.0 || >=0.2.1-rc.1 <0.3.0"
+          }
+        },
+        {
           "version": "0.3.1",
           "publishTimestamp": 1793365935,
           "source": {
