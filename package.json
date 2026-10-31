@@ -1,6 +1,6 @@
 {
   "name": "dsh-peak-valley",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "DSH 峰谷调度：北京时间工作日 9-12 / 14-18 峰时自动停止 SnowLuma 与语音服务，谷时自动拉起；路径自动发现，装在哪里都不用改配置。",
   "type": "module",
   "main": "./lib/index.js",
